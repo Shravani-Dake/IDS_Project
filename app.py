@@ -26,12 +26,27 @@ local_css("styles.css")
 # --- Load Models & Metadata ---
 @st.cache_resource
 def load_assets():
+    base_path = os.path.dirname(__file__)
+    model_paths = {
+        'lg': os.path.join(base_path, 'models', 'lightgbm_model.joblib'),
+        'xg': os.path.join(base_path, 'models', 'xgboost_model.joblib'),
+        'cb': os.path.join(base_path, 'models', 'catboost_model.joblib'),
+        'leaders': os.path.join(base_path, 'models', 'leader_indices.joblib'),
+        'features': os.path.join(base_path, 'models', 'feature_names.joblib')
+    }
+    
     try:
-        lg = joblib.load('models/lightgbm_model.joblib')
-        xg = joblib.load('models/xgboost_model.joblib')
-        cb = joblib.load('models/catboost_model.joblib')
-        leader_indices = joblib.load('models/leader_indices.joblib')
-        feature_names = joblib.load('models/feature_names.joblib')
+        # Check if all files exist
+        for name, path in model_paths.items():
+            if not os.path.exists(path):
+                st.error(f"Missing model file: {os.path.basename(path)}")
+                return None
+                
+        lg = joblib.load(model_paths['lg'])
+        xg = joblib.load(model_paths['xg'])
+        cb = joblib.load(model_paths['cb'])
+        leader_indices = joblib.load(model_paths['leaders'])
+        feature_names = joblib.load(model_paths['features'])
         return lg, xg, cb, leader_indices, feature_names
     except Exception as e:
         st.error(f"Error loading models: {e}")
